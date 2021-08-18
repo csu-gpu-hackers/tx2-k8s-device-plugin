@@ -2,9 +2,10 @@ package devices
 
 import (
 	"dev-play/utils"
+
 	"github.com/fsnotify/fsnotify"
+	log "github.com/sirupsen/logrus"
 	plugin "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
-	"log"
 )
 
 type GPUManager struct {
@@ -33,7 +34,7 @@ func NewGPUManager() *GPUManager {
 	return &GPUManager{
 		deviceName:   	"xwan-gpu",
 		//DevicePath:   "/sys/devices/platform/host1x/17000000.gp10b/load",
-		DevicePath:		"/home/ryan/gpu-device",
+		DevicePath:		"/home/gpu-device",
 		deviceSocket: 	"xwan-gpu.sock",
 		DeviceParts:  	DevicePercents,
 		DeviceChangeNotifier: DeviceChangeNotifier,
@@ -74,6 +75,7 @@ func (gpu *GPUManager) updateDeviceLoads() int {
 func (gpu *GPUManager) WatchDevice() error {
 	log.Println("Watch Device start working")
 	err := gpu.DeviceChangeNotifier.Add(gpu.DevicePath)
+	log.Println("watching device: ", gpu.DevicePath)
 	utils.Check(err)
 	//done := make(chan bool)
 	//go func() {
