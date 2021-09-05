@@ -23,7 +23,7 @@ type DevPlg struct {
 	deviceType    string
 	srv           *grpc.Server
 	ctx           context.Context
-	DeviceManager *devices.GPUManager
+	DeviceManager devices.Device
 	cancel		  context.CancelFunc
 	devSocketPath string
 	//devUpdate	  chan bool
@@ -91,12 +91,14 @@ func (dp *DevPlg) RegisterToKubelet() error {
 	return nil
 }
 
+
+
 func (dp *DevPlg) ListAndWatch(empty *plugin.Empty, server plugin.DevicePlugin_ListAndWatchServer) error {
 	//panic("implement me")
 	log.Infoln("ListAndWatch called")
-	devs := make([]*plugin.Device, len(dp.DeviceManager.DeviceParts))
+	devs := make([]*plugin.Device, len(dp.DeviceManager.GetDeviceParts()))
 	i := 0
-	for _, dev := range dp.DeviceManager.DeviceParts {
+	for _, dev := range dp.DeviceManager.GetDeviceParts() {
 		devs[i] = dev
 		i++
 	}
@@ -106,21 +108,21 @@ func (dp *DevPlg) ListAndWatch(empty *plugin.Empty, server plugin.DevicePlugin_L
 	for true {
 		log.Println("waiting for device change")
 		select {
-		case event, ok := <- dp.DeviceManager.DeviceChangeNotifier.Events:
+		case event, ok := <- dp.DeviceManager.GetDeviceChangeNotifier().Events:
 
 			if !ok {
 				continue
 			}
 			if event.Op&fsnotify.Remove == fsnotify.Remove {
 				log.Println("File has been removed")
-				for _, part := range dp.DeviceManager.DeviceParts {
+				for _, part := range dp.DeviceManager.GetDeviceParts() {
 					part.Health = plugin.Unhealthy
 				}
 			} else if event.Op&fsnotify.Write == fsnotify.Write {
 				load := dp.DeviceManager.GetDeviceLoads()
 				log.Printf("used cores: %v\n", load)
 				devs := make([]*plugin.Device, 100)
-				for i, dev := range dp.DeviceManager.DeviceParts{
+				for i, dev := range dp.DeviceManager.GetDeviceParts(){
 					devs[i] = dev
 					i++
 				}

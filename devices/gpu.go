@@ -57,6 +57,10 @@ func (gpu *GPUManager) GetDeviceLoads() int {
 	return gpu.updateDeviceLoads()
 }
 
+func (gpu *GPUManager) GetDeviceParts() []*plugin.Device {
+	return gpu.DeviceParts
+}
+
 func (gpu *GPUManager) updateDeviceLoads() int {
 	load, err := utils.ExtractNumber(utils.ReadFile(gpu.DevicePath))
 	utils.Check(err)
@@ -70,6 +74,10 @@ func (gpu *GPUManager) updateDeviceLoads() int {
 		gpu.DeviceParts[i].Health = plugin.Unhealthy
 	}
 	return load
+}
+
+func (gpu *GPUManager) GetDeviceChangeNotifier() *fsnotify.Watcher {
+	return gpu.DeviceChangeNotifier
 }
 
 func (gpu *GPUManager) WatchDevice() error {
