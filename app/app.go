@@ -1,9 +1,9 @@
 package main
 
 import (
-	device_plugin "dev-play/device-plugin"
-	"dev-play/utils"
 	"os"
+	"tx2-k8s-device-plugin/device-plugin"
+	"tx2-k8s-device-plugin/utils"
 
 	log "github.com/sirupsen/logrus"
 )

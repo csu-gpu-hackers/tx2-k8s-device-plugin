@@ -1,4 +1,4 @@
-module dev-play
+module tx2-k8s-device-plugin
 
 go 1.16
 

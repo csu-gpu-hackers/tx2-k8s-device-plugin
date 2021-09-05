@@ -1,7 +1,7 @@
 package devices
 
 import (
-	"dev-play/utils"
+	"tx2-k8s-device-plugin/utils"
 
 	"github.com/fsnotify/fsnotify"
 	log "github.com/sirupsen/logrus"
@@ -66,13 +66,13 @@ func (gpu *GPUManager) updateDeviceLoads() int {
 	utils.Check(err)
 	//load = load / 10
 
-	for i := 0; i < 100; i++ {
-		gpu.DeviceParts[i].Health = plugin.Healthy
-	}
-
-	for i := 0; i < load; i++ {
-		gpu.DeviceParts[i].Health = plugin.Unhealthy
-	}
+	//for i := 0; i < 100; i++ {
+	//	gpu.DeviceParts[i].Health = plugin.Healthy
+	//}
+	//
+	//for i := 0; i < load; i++ {
+	//	gpu.DeviceParts[i].Health = plugin.Unhealthy
+	//}
 	return load
 }
 

@@ -1,8 +1,6 @@
 package device_plugin
 
 import (
-	"dev-play/devices"
-	"dev-play/utils"
 	"github.com/fsnotify/fsnotify"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
@@ -12,6 +10,8 @@ import (
 	"path"
 	"strings"
 	"time"
+	"tx2-k8s-device-plugin/devices"
+	"tx2-k8s-device-plugin/utils"
 )
 //type DeviceType string
 const (
