@@ -1,0 +1,2 @@
+plugin-manager:
+  socketPath: "/var/lib/kubelet/device-plugins/plugin-manager.socket"

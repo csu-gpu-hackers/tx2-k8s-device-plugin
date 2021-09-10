@@ -1,11 +1,8 @@
 package main
 
 import (
-	"os"
-	"tx2-k8s-device-plugin/device-plugin"
-	"tx2-k8s-device-plugin/utils"
-
 	log "github.com/sirupsen/logrus"
+	pluginmanager "tx2-k8s-device-plugin/plugin-manager"
 )
 
 const (
@@ -14,22 +11,11 @@ const (
 )
 
 func main() {
-	err := os.Remove(gpu_socket)
-	utils.Check(err)
-	devPlg := device_plugin.NewDevPlg("csu.ac.cn/gpu", gpu_socket)
-	log.Println("construction of dp finished, start running")
-	go devPlg.Run()
-	go func() {
-		err := devPlg.RegisterToKubelet()
-		utils.Check(err)
-		log.Println("Register finished")
-	}()
+	pluginManager := pluginmanager.NewPluginManager()
+	go pluginManager.Run()
+	log.Info("PluginManager start waiting for call")
 	for {
-		
+
 	}
-
-
-
-
 
 }
