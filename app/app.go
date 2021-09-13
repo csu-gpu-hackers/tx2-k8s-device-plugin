@@ -1,8 +1,8 @@
 package main
 
 import (
+	pluginmanager "github.com/csu-gpu-hackers/tx2-k8s-device-plugin/plugin-manager"
 	log "github.com/sirupsen/logrus"
-	pluginmanager "tx2-k8s-device-plugin/plugin-manager"
 )
 
 const (
@@ -11,6 +11,7 @@ const (
 )
 
 func main() {
+	//pluginManager := pluginmanager.NewDevPlg()
 	pluginManager := pluginmanager.NewPluginManager()
 	go pluginManager.Run()
 	log.Info("PluginManager start waiting for call")

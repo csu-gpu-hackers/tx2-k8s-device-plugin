@@ -1,15 +1,15 @@
 package plugin_manager
 
 import (
+	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/conf"
+	dev_plg "github.com/csu-gpu-hackers/tx2-k8s-device-plugin/device-plugin"
+	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"net"
 	"strconv"
 	"time"
-	"tx2-k8s-device-plugin/conf"
-	dev_plg "tx2-k8s-device-plugin/device-plugin"
-	"tx2-k8s-device-plugin/utils"
 )
 
 type PluginManager struct {

@@ -1,4 +1,4 @@
-module tx2-k8s-device-plugin
+module github.com/csu-gpu-hackers/tx2-k8s-device-plugin
 
 go 1.16
 
