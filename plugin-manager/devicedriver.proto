@@ -1,6 +1,6 @@
 syntax = "proto3";  //语法声明
 
-package conf; //包名
+package plugin_manager; //包名
 service DeviceDriver {
     rpc GetDeviceParts(Empty) returns (Devices) {}
     rpc GetDeviceLoads(Empty) returns (Integer) {}
