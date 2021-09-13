@@ -1,0 +1,59 @@
+syntax = "proto3";  //语法声明
+
+package conf; //包名
+service DeviceDriver {
+    rpc GetDeviceParts(Empty) returns (Devices) {}
+    rpc GetDeviceLoads(Empty) returns (Integer) {}
+    rpc WatchDevice(Empty) returns (stream Devices) {}
+}
+
+
+message Empty {
+}
+
+message Integer {
+  int32 value = 1;
+}
+
+message Devices {
+  repeated Device device = 1;
+}
+
+message Device {
+  // A unique ID assigned by the device plugin used
+  // to identify devices during the communication
+  // Max length of this field is 63 characters
+  string ID = 1;
+  // Health of the device, can be healthy or unhealthy, see constants.go
+  string health = 2;
+  // Topology for device
+  TopologyInfo topology = 3;
+}
+
+message TopologyInfo {
+  repeated NUMANode nodes = 1;
+}
+
+message NUMANode {
+  int64 ID = 1;
+}
+
+
+
+
+
+// Greeter 微服务
+// service Greeter {
+  // Sends a greeting
+//  rpc SayHello (HelloRequest) returns (HelloReply) {}
+// }
+
+// HelloRequest 请求数据格式
+message HelloRequest {
+  string name = 1;
+}
+
+// HelloReply 响应数据格式
+message HelloReply {
+  string message = 1;
+}

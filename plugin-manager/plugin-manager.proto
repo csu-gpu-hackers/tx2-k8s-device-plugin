@@ -17,42 +17,4 @@ message DeviceRegisterReply {
   bool registerResult = 1;
 }
 
-service CallClient {
-    rpc GetDeviceParts(Empty) returns (Devices);
-    rpc GetDeviceLoads(Empty) returns (Integer);
-    rpc WatchDevice(Empty) returns (stream Devices);
-//      WatchDevice() error
-//  GetDeviceChangeNotifier() *fsnotify.Watcher
-}
-
-
-message Empty {
-}
-
-message Integer {
-  int32 value = 1;
-}
-
-message Devices {
-  repeated Device device = 1;
-}
-
-message Device {
-  // A unique ID assigned by the device plugin used
-  // to identify devices during the communication
-  // Max length of this field is 63 characters
-  string ID = 1;
-  // Health of the device, can be healthy or unhealthy, see constants.go
-  string health = 2;
-  // Topology for device
-  TopologyInfo topology = 3;
-}
-
-message TopologyInfo {
-  repeated NUMANode nodes = 1;
-}
-
-message NUMANode {
-  int64 ID = 1;
-}
 
