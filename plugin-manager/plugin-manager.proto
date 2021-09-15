@@ -8,8 +8,9 @@ service Register {
 }
 
 message DeviceRegisterRequest {
-  string deviceType = 1;
-  string socketPath = 2;
+  int32 deviceNum = 1;
+  string deviceType = 2;
+  string socketPath = 3;
 
 }
 

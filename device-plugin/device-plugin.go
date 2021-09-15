@@ -1,6 +1,8 @@
 package device_plugin
 
 import (
+	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/devices"
+	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
 	"github.com/fsnotify/fsnotify"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
@@ -10,8 +12,6 @@ import (
 	"path"
 	"strings"
 	"time"
-	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/devices"
-	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
 )
 //type DeviceType string
 const (
@@ -29,8 +29,10 @@ type DevPlg struct {
 	//devUpdate	  chan bool
 }
 
-func NewDevPlg(deviceType string, devSocketPath string) *DevPlg {
-	devmgr := devices.NewGPUManager()
+func NewDevPlg(devicePartsNum int, deviceType string, devSocketPath string) *DevPlg {
+	devmgr := devices.NewDeviceHandler(devicePartsNum,deviceType,devSocketPath)
+
+	//devmgr := devices.NewGPUManager()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	log.Println("Construction of DevPlg starting: ", deviceType)
@@ -131,23 +133,6 @@ func (dp *DevPlg) ListAndWatch(empty *plugin.Empty, server plugin.DevicePlugin_L
 			}
 
 		}
-
-		//select {
-		//case <- dp.DeviceManager.DeviceChangeNotifier:
-		//	load := dp.DeviceManager.GetDeviceLoads()
-		//	log.Printf("Available cores: %v\n", load)
-		//	devs := make([]*plugin.Device, 100 - load)
-		//	for i, dev := range dp.DeviceManager.DeviceParts[load:]{
-		//		devs[i] = dev
-		//		i++
-		//	}
-		//	err := server.Send(&plugin.ListAndWatchResponse{Devices: devs})
-		//	utils.Check(err)
-		//case <-dp.ctx.Done():
-		//	log.Println("ListAndWatch exit")
-		//	return nil
-		//}
-
 	}
 	return nil
 }

@@ -85,34 +85,5 @@ func (gpu *GPUManager) WatchDevice() error {
 	err := gpu.DeviceChangeNotifier.Add(gpu.DevicePath)
 	log.Println("watching device: ", gpu.DevicePath)
 	utils.Check(err)
-	//done := make(chan bool)
-	//go func() {
-	//	defer func() {
-	//		done <- true
-	//		log.Println("watch device exit")
-	//	}()
-	//
-	//	for true {
-	//		time.Sleep(2 * time.Second)
-	//		select {
-	//		case event, ok := <-w.Events:
-	//			if !ok {
-	//				continue
-	//			}
-	//			if event.Op&fsnotify.Remove == fsnotify.Remove {
-	//				for _, part := range gpu.DeviceParts {
-	//					log.Println("File has been removed")
-	//					part.Health = plugin.Unhealthy
-	//				}
-	//				gpu.DeviceChangeNotifier <- true
-	//			} else if event.Op&fsnotify.Write == fsnotify.Write {
-	//				log.Println("load file has been re-written.")
-	//				gpu.DeviceChangeNotifier <- true
-	//			}
-	//		}
-	//	}
-	//}()
-
-
 	return nil
 }

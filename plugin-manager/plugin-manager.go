@@ -1,7 +1,7 @@
 package plugin_manager
 
 import (
-	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/conf"
+	conf "github.com/csu-gpu-hackers/tx2-k8s-device-plugin/conf"
 	dev_plg "github.com/csu-gpu-hackers/tx2-k8s-device-plugin/device-plugin"
 	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
 	log "github.com/sirupsen/logrus"
@@ -46,7 +46,7 @@ func (pmg *PluginManager) Run() error {
 
 func (pmg *PluginManager) RegisterHandler(context context.Context,
 	deviceRequest *DeviceRegisterRequest) (*DeviceRegisterReply, error) {
-	devicePlugin := dev_plg.NewDevPlg(deviceRequest.DeviceType, deviceRequest.SocketPath)
+	devicePlugin := dev_plg.NewDevPlg(int32(deviceRequest.DeviceNum), deviceRequest.DeviceType, deviceRequest.SocketPath)
 	pmg.devicePlugins = append(pmg.devicePlugins, devicePlugin)
 	go devicePlugin.Run()
 	go func() {
