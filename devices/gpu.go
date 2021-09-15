@@ -1,7 +1,7 @@
 package devices
 
 import (
-	"tx2-k8s-device-plugin/utils"
+	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
 
 	"github.com/fsnotify/fsnotify"
 	log "github.com/sirupsen/logrus"

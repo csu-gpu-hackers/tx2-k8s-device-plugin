@@ -10,8 +10,8 @@ import (
 	"path"
 	"strings"
 	"time"
-	"tx2-k8s-device-plugin/devices"
-	"tx2-k8s-device-plugin/utils"
+	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/devices"
+	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
 )
 //type DeviceType string
 const (

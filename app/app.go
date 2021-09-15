@@ -2,8 +2,8 @@ package main
 
 import (
 	"os"
-	"tx2-k8s-device-plugin/device-plugin"
-	"tx2-k8s-device-plugin/utils"
+	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/device-plugin"
+	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
 
 	log "github.com/sirupsen/logrus"
 )
