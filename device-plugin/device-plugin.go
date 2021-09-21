@@ -1,6 +1,9 @@
 package device_plugin
 
 import (
+	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/devices"
+	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
+	vDevice_manager "github.com/csu-gpu-hackers/tx2-k8s-device-plugin/vDevice-manager"
 	"github.com/fsnotify/fsnotify"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
@@ -10,8 +13,6 @@ import (
 	"path"
 	"strings"
 	"time"
-	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/devices"
-	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
 )
 //type DeviceType string
 const (
@@ -58,7 +59,8 @@ func (dp *DevPlg) Run() error {
 	}
 
 	utils.Check(err)
-
+	vGPUManager := vDevice_manager.NewVDeviceManager(dp.deviceType)
+	go vGPUManager.Run()
 	go func() {
 		log.Println("Start serving listener")
 		err = dp.srv.Serve(lis)
@@ -129,25 +131,7 @@ func (dp *DevPlg) ListAndWatch(empty *plugin.Empty, server plugin.DevicePlugin_L
 				err := server.Send(&plugin.ListAndWatchResponse{Devices: devs})
 				utils.Check(err)
 			}
-
 		}
-
-		//select {
-		//case <- dp.DeviceManager.DeviceChangeNotifier:
-		//	load := dp.DeviceManager.GetDeviceLoads()
-		//	log.Printf("Available cores: %v\n", load)
-		//	devs := make([]*plugin.Device, 100 - load)
-		//	for i, dev := range dp.DeviceManager.DeviceParts[load:]{
-		//		devs[i] = dev
-		//		i++
-		//	}
-		//	err := server.Send(&plugin.ListAndWatchResponse{Devices: devs})
-		//	utils.Check(err)
-		//case <-dp.ctx.Done():
-		//	log.Println("ListAndWatch exit")
-		//	return nil
-		//}
-
 	}
 	return nil
 }
@@ -155,13 +139,23 @@ func (dp *DevPlg) ListAndWatch(empty *plugin.Empty, server plugin.DevicePlugin_L
 func (dp *DevPlg) Allocate(ctx context.Context, requests *plugin.AllocateRequest) (*plugin.AllocateResponse, error) {
 	log.Println("Allocate called")
 	resps := &plugin.AllocateResponse{}
+	
 	for _, req := range requests.ContainerRequests {
+		mountPoints := make([]*plugin.Mount, 0)
+
+		mountPoint := &plugin.Mount{
+			ContainerPath:        "/usr/lib/aarch64-linux-gnu/libcuda.so.1",
+			HostPath:             "./libcuda.so.1",
+			ReadOnly:             false,
+		}
+		mountPoints = append(mountPoints, mountPoint)
 		log.Printf("received request: %s\n", strings.Join(req.DevicesIDs, ","))
 		resp := plugin.ContainerAllocateResponse{
 			Envs: map[string]string{
 				dp.deviceType: strings.Join(req.DevicesIDs, ","),
 			},
 		}
+
 		resps.ContainerResponses = append(resps.ContainerResponses, &resp)
 	}
 	return resps, nil
@@ -182,5 +176,6 @@ func (dp *DevPlg) GetPreferredAllocation(ctx context.Context, request *plugin.Pr
 func (dp *DevPlg) PreStartContainer(ctx context.Context, request *plugin.PreStartContainerRequest) (*plugin.PreStartContainerResponse, error) {
 	//panic("implement me")
 	log.Println("PreStartContainer called")
+
 	return &plugin.PreStartContainerResponse{}, nil
 }

@@ -1,0 +1,26 @@
+syntax="proto3";
+package vDevice_manager;
+
+service VDeviceManager {
+  rpc RegisterVDevice(VDeviceRequest) returns (VDeviceResponse){}
+}
+
+// No way to garantee these two variables
+// are obtained together by single source,
+// binding relationships obtaining are not figured out
+
+message VDeviceRequest {
+  string ContainerID = 1;
+  int32 RequestVDeviceNum = 2;
+}
+
+message VDeviceResponse {
+  bool Result = 1;
+  enum ReasonType {
+    INSUFFICIENT_RESOURCE = 0;
+    DEVICE_OFFLINE = 1;
+    RESOURCE_SEIZED = 2;
+  }
+  ReasonType Reason = 2;
+}
+
