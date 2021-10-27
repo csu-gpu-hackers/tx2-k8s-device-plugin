@@ -2,18 +2,21 @@ package vDeviceManager
 
 import (
 	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
+	v1 "k8s.io/api/core/v1"
 	"log"
 	"path"
 )
 
 type VDevice struct {
+	PodUID string
 	vDeviceType string
 	connection *utils.Messenger
 	vlmMgr *VolumeManager
 }
 
-func (vd *VDevice) CheckStatus() utils.DeviceStatus  {
-	return utils.PENDING
+func (vd *VDevice) CheckStatus() v1.PodPhase {
+	phase := utils.CheckPodStatus(vd.PodUID)
+	return phase
 }
 
 func (vd *VDevice) Serve() {
@@ -25,6 +28,7 @@ func (vd *VDevice) Serve() {
 
 func (vd *VDevice) Register(PodUID string, containerID string, registerInfo string) string {
 	vd.vlmMgr.UpdateContainerID(containerID)
+	vd.PodUID = PodUID
 	vd.vlmMgr.WriteConfig()
 	return "Register Success"
 }
@@ -56,15 +60,14 @@ func (vdm *VDeviceManager) NewDevice(deviceType string, vlmMgr *VolumeManager)  
 func (vdm *VDeviceManager) Serve() {
 	for _, vdevice := range vdm.vDevices {
 		switch vdevice.CheckStatus() {
-		case utils.OK:
+		case v1.PodRunning:
 			continue
-		case utils.PENDING:
+		case v1.PodPending:
 			log.Fatalf("Container Still pending after serving, please check\n")
-		case utils.DEAD:
+		case v1.PodSucceeded:
 			vdevice.vlmMgr.ReleaseConfig()
 		default:
 			log.Println("Unexpected status")
-
 		}
 	}
 }

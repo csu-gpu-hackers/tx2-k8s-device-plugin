@@ -1,5 +1,8 @@
 package vDeviceManager
+
 import (
+	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
+	"github.com/otiai10/copy"
 	"github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
 	"os"
@@ -8,6 +11,7 @@ import (
 
 const (
 	vcudalibcontainerbase = "/etc/vcuda/"
+	vcudalibpath = "lib"
 )
 
 type VolumeManager struct {
@@ -40,6 +44,7 @@ func (v *VolumeManager) UpdateContainerID(containerID string) {
 
 func (v *VolumeManager) prepareDirectories() {
 	err := os.MkdirAll(v.VCudaLibHostPath, os.ModePerm)
+	err = copy.Copy(path.Join(utils.RootPath, vcudalibpath), v.VCudaLibHostPath)
 	if err != nil {
 		log.Fatalf("Directory exists")
 		panic(err)

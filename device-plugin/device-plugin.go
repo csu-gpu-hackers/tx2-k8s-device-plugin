@@ -33,7 +33,8 @@ type DevPlg struct {
 
 func NewDevPlg(deviceType string, devSocketPath string) *DevPlg {
 	devmgr := devices.NewGPUManager()
-
+	vDevMgr := &vDeviceManager.VDeviceManager{}
+	go vDevMgr.Serve()
 	ctx, cancel := context.WithCancel(context.Background())
 	log.Println("Construction of DevPlg starting: ", deviceType)
 	return &DevPlg{
@@ -165,6 +166,7 @@ func (dp *DevPlg) Allocate(ctx context.Context, requests *plugin.AllocateRequest
 		resp := plugin.ContainerAllocateResponse{
 			Envs: map[string]string{
 				dp.deviceType: strings.Join(req.DevicesIDs, ","),
+				"LD_LIBRARY_PATH": "/etc/vcuda/lib/",
 			},
 		}
 		vlmMgr := vDeviceManager.NewVolumeManager()
@@ -173,9 +175,10 @@ func (dp *DevPlg) Allocate(ctx context.Context, requests *plugin.AllocateRequest
 		dp.vDevMgr.NewDevice(dp.deviceType, vlmMgr)
 		resp.Mounts = append(resp.Mounts, &plugin.Mount{
 			ContainerPath:        "/etc/vcuda/",
-			HostPath:             "",
+			HostPath:             vlmMgr.VCudaLibHostPath,
 			ReadOnly:             false,
 		})
+
 
 
 		//dp.vDevMgr.
