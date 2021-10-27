@@ -1,6 +1,9 @@
 package device_plugin
 
 import (
+	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/devices"
+	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
+	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/vDeviceManager"
 	"github.com/fsnotify/fsnotify"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
@@ -10,8 +13,6 @@ import (
 	"path"
 	"strings"
 	"time"
-	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/devices"
-	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
 )
 //type DeviceType string
 const (
@@ -26,6 +27,7 @@ type DevPlg struct {
 	DeviceManager devices.Device
 	cancel		  context.CancelFunc
 	devSocketPath string
+	vDevMgr		  *vDeviceManager.VDeviceManager
 	//devUpdate	  chan bool
 }
 
@@ -41,6 +43,7 @@ func NewDevPlg(deviceType string, devSocketPath string) *DevPlg {
 		DeviceManager: devmgr,
 		cancel:  cancel,
 		devSocketPath: devSocketPath,
+		vDevMgr: &vDeviceManager.VDeviceManager{},
 		//devUpdate: make(chan bool),
 	}
 
@@ -155,13 +158,27 @@ func (dp *DevPlg) ListAndWatch(empty *plugin.Empty, server plugin.DevicePlugin_L
 func (dp *DevPlg) Allocate(ctx context.Context, requests *plugin.AllocateRequest) (*plugin.AllocateResponse, error) {
 	log.Println("Allocate called")
 	resps := &plugin.AllocateResponse{}
+
 	for _, req := range requests.ContainerRequests {
 		log.Printf("received request: %s\n", strings.Join(req.DevicesIDs, ","))
+		//req.
 		resp := plugin.ContainerAllocateResponse{
 			Envs: map[string]string{
 				dp.deviceType: strings.Join(req.DevicesIDs, ","),
 			},
 		}
+		vlmMgr := vDeviceManager.NewVolumeManager()
+		// mounting hijacking library path, which
+		// also will be containing config file
+		dp.vDevMgr.NewDevice(dp.deviceType, vlmMgr)
+		resp.Mounts = append(resp.Mounts, &plugin.Mount{
+			ContainerPath:        "/etc/vcuda/",
+			HostPath:             "",
+			ReadOnly:             false,
+		})
+
+
+		//dp.vDevMgr.
 		resps.ContainerResponses = append(resps.ContainerResponses, &resp)
 	}
 	return resps, nil

@@ -11,6 +11,7 @@ import (
 
 type DeviceStatus int
 type DeviceType string
+
 const (
 	OK DeviceStatus = iota
 	OCCUPIED
