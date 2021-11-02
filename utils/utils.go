@@ -38,7 +38,7 @@ const (
 
 var (
 	//K8sClient *kubernetes.Clientset = createK8sInClusterClient()
-	K8sClient *kubernetes.Clientset = createK8sOutClusterClient()
+	K8sClient = createK8sOutClusterClient()
 	_, b, _, _ = runtime.Caller(0)
 	RootPath = filepath.Join(filepath.Dir(b), "../..")
 )
