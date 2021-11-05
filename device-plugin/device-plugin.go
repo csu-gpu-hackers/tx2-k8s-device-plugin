@@ -166,7 +166,7 @@ func (dp *DevPlg) Allocate(ctx context.Context, requests *plugin.AllocateRequest
 		resp := plugin.ContainerAllocateResponse{
 			Envs: map[string]string{
 				dp.deviceType: strings.Join(req.DevicesIDs, ","),
-				"LD_LIBRARY_PATH": "/etc/vcuda/lib/",
+				"LD_LIBRARY_PATH": "/etc/vcuda/:$LD_LIBRARY_PATH",
 			},
 		}
 		vlmMgr := vDeviceManager.NewVolumeManager()
@@ -178,6 +178,7 @@ func (dp *DevPlg) Allocate(ctx context.Context, requests *plugin.AllocateRequest
 			HostPath:             vlmMgr.VCudaLibHostPath,
 			ReadOnly:             false,
 		})
+		//resp.Mounts =
 
 
 

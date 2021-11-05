@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"io"
 	"io/ioutil"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -15,7 +14,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 	"net"
-	"os"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -43,25 +41,25 @@ var (
 	RootPath = filepath.Join(filepath.Dir(b), "../..")
 )
 
-func Copy(src, dst string) error {
-	in, err := os.Open(src)
-	if err != nil {
-		return err
-	}
-	defer in.Close()
-
-	out, err := os.Create(dst)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, in)
-	if err != nil {
-		return err
-	}
-	return out.Close()
-}
+//func Copy(src, dst string) error {
+//	in, err := os.Open(src)
+//	if err != nil {
+//		return err
+//	}
+//	defer in.Close()
+//
+//	out, err := os.Create(dst)
+//	if err != nil {
+//		return err
+//	}
+//	defer out.Close()
+//
+//	_, err = io.Copy(out, in)
+//	if err != nil {
+//		return err
+//	}
+//	return out.Close()
+//}
 
 
 func createK8sInClusterClient() *kubernetes.Clientset {
@@ -116,6 +114,10 @@ func CheckPodStatus(poduid string) v1.PodPhase {
 		fmt.Printf("Found pod %s in namespace %s\n", poduid, namespace)
 		return pod.Status.Phase
 	}
+
+}
+
+func GetPodLimits(poduid, containerid string) {
 
 }
 

@@ -27,7 +27,8 @@ func (vd *VDevice) Serve() {
 //func (vd *VDevice) monitor() {}
 
 func (vd *VDevice) Register(PodUID string, containerID string, registerInfo string) string {
-	vd.vlmMgr.UpdateContainerID(containerID)
+	log.Printf("Received register request from pod %s, container: %s", PodUID, containerID)
+	vd.vlmMgr.UpdateInfo(containerID, PodUID)
 	vd.PodUID = PodUID
 	vd.vlmMgr.WriteConfig()
 	return "Register Success"
@@ -52,6 +53,7 @@ func (vdm *VDeviceManager) NewDevice(deviceType string, vlmMgr *VolumeManager)  
 		connection: utils.InitMessenger(path.Join(vlmMgr.VCudaLibHostPath, "vdm.sock"), Actions),
 	}
 	vdm.vDevices = append(vdm.vDevices, vd)
+
 	go vd.Serve()
 	
 }
