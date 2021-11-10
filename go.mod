@@ -4,7 +4,6 @@ go 1.16
 
 require (
 	github.com/fsnotify/fsnotify v1.5.1
-	github.com/otiai10/copy v1.6.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.8.1
 	golang.org/x/net v0.0.0-20210520170846-37e1c6afe023

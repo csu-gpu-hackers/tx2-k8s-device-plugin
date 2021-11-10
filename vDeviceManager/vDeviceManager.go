@@ -1,7 +1,12 @@
 package vDeviceManager
 
+
+import "C"
 import (
 	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
+	"time"
+
+	//"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/vDeviceManager"
 	v1 "k8s.io/api/core/v1"
 	"log"
 	"path"
@@ -15,8 +20,17 @@ type VDevice struct {
 }
 
 func (vd *VDevice) CheckStatus() v1.PodPhase {
-	phase := utils.CheckPodStatus(vd.PodUID)
-	return phase
+	//log.Printf("Checking Status of %s\n", vd.PodUID)
+	if vd.PodUID == "" {
+		log.Println("Register request not received yet, returing pending")
+		return v1.PodPending
+	} else {
+		log.Printf("Checking Status of %s\n", vd.PodUID)
+		phase := utils.CheckPodStatus(vd.PodUID)
+		return phase
+	}
+
+
 }
 
 func (vd *VDevice) Serve() {
@@ -60,18 +74,33 @@ func (vdm *VDeviceManager) NewDevice(deviceType string, vlmMgr *VolumeManager)  
 
 
 func (vdm *VDeviceManager) Serve() {
-	for _, vdevice := range vdm.vDevices {
-		switch vdevice.CheckStatus() {
-		case v1.PodRunning:
-			continue
-		case v1.PodPending:
-			log.Fatalf("Container Still pending after serving, please check\n")
-		case v1.PodSucceeded:
-			vdevice.vlmMgr.ReleaseConfig()
-		default:
-			log.Println("Unexpected status")
+	log.Printf("VDeviceManager start serving\n")
+	for true {
+		for i, vdevice := range vdm.vDevices {
+			//log.Printf("vdevice status: %s", vdevice.CheckStatus())
+			switch vdevice.CheckStatus() {
+			case v1.PodRunning:
+				continue
+			case v1.PodPending:
+				//log.Fatalf("Container Still pending after serving, please check\n")
+			case v1.PodSucceeded:
+				log.Printf("Detected pod released: %s\n", vdevice.PodUID)
+				vdevice.vlmMgr.ReleaseConfig()
+				vdm.vDevices[i] = nil
+				if i == len(vdm.vDevices) {
+					vdm.vDevices = vdm.vDevices[:i]
+				} else {
+					vdm.vDevices = append(vdm.vDevices[:i], vdm.vDevices[i+1:]...)
+				}
+
+
+			default:
+				log.Println("Unexpected status")
+			}
+			time.Sleep(2 * time.Second)
 		}
 	}
+
 }
 
 

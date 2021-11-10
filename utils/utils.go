@@ -2,12 +2,14 @@ package utils
 
 import (
 	"flag"
-	"fmt"
+	//"fmt"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"io/ioutil"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
+	//"k8s.io/apimachinery/pkg/api/errors"
+	//"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -99,21 +101,30 @@ func createK8sOutClusterClient() *kubernetes.Clientset {
 }
 
 func CheckPodStatus(poduid string) v1.PodPhase {
+	log.Printf("Checking status of %s\n",poduid)
 	namespace := "default"
-	pod, err := K8sClient.CoreV1().Pods(namespace).Get(context.TODO(), poduid, metav1.GetOptions{})
-	if errors.IsNotFound(err) {
-		fmt.Printf("Pod %s in namespace %s not found\n", poduid, namespace)
-		panic(err)
-	} else if statusError, isStatus := err.(*errors.StatusError); isStatus {
-		fmt.Printf("Error getting pod %s in namespace %s: %v\n",
-			poduid, namespace, statusError.ErrStatus.Message)
-		panic(err)
-	} else if err != nil {
-		panic(err.Error())
-	} else {
-		fmt.Printf("Found pod %s in namespace %s\n", poduid, namespace)
-		return pod.Status.Phase
+	pods, err := K8sClient.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
+	Check(err)
+	for _, pod := range pods.Items {
+		if string(pod.UID) == poduid {
+			return 	pod.Status.Phase
+		}
 	}
+	return v1.PodSucceeded
+	//pod, err := K8sClient.CoreV1().Pods(namespace).Get(context.TODO(), poduid, metav1.GetOptions{})
+	//if errors.IsNotFound(err) {
+	//	fmt.Printf("Pod %s in namespace %s not found\n", poduid, namespace)
+	//	panic(err)
+	//} else if statusError, isStatus := err.(*errors.StatusError); isStatus {
+	//	fmt.Printf("Error getting pod %s in namespace %s: %v\n",
+	//		poduid, namespace, statusError.ErrStatus.Message)
+	//	panic(err)
+	//} else if err != nil {
+	//	panic(err.Error())
+	//} else {
+	//	fmt.Printf("Found pod %s in namespace %s\n", poduid, namespace)
+	//	return pod.Status.Phase
+	//}
 
 }
 

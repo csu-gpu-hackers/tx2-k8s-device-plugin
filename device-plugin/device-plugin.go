@@ -34,7 +34,7 @@ type DevPlg struct {
 func NewDevPlg(deviceType string, devSocketPath string) *DevPlg {
 	devmgr := devices.NewGPUManager()
 	vDevMgr := &vDeviceManager.VDeviceManager{}
-	go vDevMgr.Serve()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	log.Println("Construction of DevPlg starting: ", deviceType)
 	return &DevPlg{
@@ -44,7 +44,7 @@ func NewDevPlg(deviceType string, devSocketPath string) *DevPlg {
 		DeviceManager: devmgr,
 		cancel:  cancel,
 		devSocketPath: devSocketPath,
-		vDevMgr: &vDeviceManager.VDeviceManager{},
+		vDevMgr: vDevMgr,
 		//devUpdate: make(chan bool),
 	}
 
@@ -52,6 +52,7 @@ func NewDevPlg(deviceType string, devSocketPath string) *DevPlg {
 }
 
 func (dp *DevPlg) Run() error {
+	go dp.vDevMgr.Serve()
 	log.Println("dp start running")
 	go dp.DeviceManager.WatchDevice()
 
