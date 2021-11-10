@@ -5,6 +5,7 @@ import "C"
 import (
 	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
 	"time"
+	"container/list"
 
 	//"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/vDeviceManager"
 	v1 "k8s.io/api/core/v1"
@@ -25,7 +26,7 @@ func (vd *VDevice) CheckStatus() v1.PodPhase {
 		log.Println("Register request not received yet, returing pending")
 		return v1.PodPending
 	} else {
-		log.Printf("Checking Status of %s\n", vd.PodUID)
+		//log.Printf("Checking Status of %s\n", vd.PodUID)
 		phase := utils.CheckPodStatus(vd.PodUID)
 		return phase
 	}
@@ -56,7 +57,11 @@ func (vd *VDevice) Report(reportSource string, reportInfo string) string {
 
 
 type VDeviceManager struct {
-	vDevices []*VDevice
+	vDevices *list.List
+}
+
+func NewVDeviceManager() *VDeviceManager {
+	return &VDeviceManager{vDevices: list.New()}
 }
 
 func (vdm *VDeviceManager) NewDevice(deviceType string, vlmMgr *VolumeManager)  {
@@ -66,8 +71,8 @@ func (vdm *VDeviceManager) NewDevice(deviceType string, vlmMgr *VolumeManager)  
 		vlmMgr: vlmMgr,
 		connection: utils.InitMessenger(path.Join(vlmMgr.VCudaLibHostPath, "vdm.sock"), Actions),
 	}
-	vdm.vDevices = append(vdm.vDevices, vd)
-
+	//vdm.vDevices = append(vdm.vDevices, vd)
+	vdm.vDevices.PushBack(vd)
 	go vd.Serve()
 	
 }
@@ -76,7 +81,9 @@ func (vdm *VDeviceManager) NewDevice(deviceType string, vlmMgr *VolumeManager)  
 func (vdm *VDeviceManager) Serve() {
 	log.Printf("VDeviceManager start serving\n")
 	for true {
-		for i, vdevice := range vdm.vDevices {
+		//for i, vdevice := range vdm.vDevices {
+		for vdeviceNode := vdm.vDevices.Front(); vdeviceNode != nil; vdeviceNode = vdeviceNode.Next() {
+			vdevice := vdeviceNode.Value.(*VDevice)
 			//log.Printf("vdevice status: %s", vdevice.CheckStatus())
 			switch vdevice.CheckStatus() {
 			case v1.PodRunning:
@@ -86,13 +93,7 @@ func (vdm *VDeviceManager) Serve() {
 			case v1.PodSucceeded:
 				log.Printf("Detected pod released: %s\n", vdevice.PodUID)
 				vdevice.vlmMgr.ReleaseConfig()
-				vdm.vDevices[i] = nil
-				if i == len(vdm.vDevices) {
-					vdm.vDevices = vdm.vDevices[:i]
-				} else {
-					vdm.vDevices = append(vdm.vDevices[:i], vdm.vDevices[i+1:]...)
-				}
-
+				vdm.vDevices.Remove(vdeviceNode)
 
 			default:
 				log.Println("Unexpected status")

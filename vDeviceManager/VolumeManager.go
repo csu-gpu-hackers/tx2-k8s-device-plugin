@@ -8,7 +8,6 @@ import (
 	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
 	"github.com/satori/go.uuid"
 	log "github.com/sirupsen/logrus"
-	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"os"
@@ -125,15 +124,19 @@ func (v *VolumeManager) UpdateInfo(containerID string, podUID string ) {
 
 func (v *VolumeManager) prepareDirectories() {
 	log.Printf("Making directory for %s", v.allocationIdentifier)
+	//_, err := exec.Command("sudo", "mkdir", v.VCudaLibHostPath).Output()
+	//if err != nil {
+	//	log.Errorln(err)
+	//}
 	err := os.Mkdir(v.VCudaLibHostPath, 0755)
 	if err != nil {
-		log.Errorln("Directory already exists")
+		//log.Errorln("Directory already exists")
 		log.Errorln(err)
 	}
 	libcudasrc := path.Join(utils.RootPath, "tx2-k8s-device-plugin/lib/libcuda.so.1")
 	log.Printf("Trying to move files from %s to %s", libcudasrc, v.VCudaLibHostPath)
-	_, err = exec.Command("cp", libcudasrc, v.VCudaLibHostPath).Output()
-	_, err = exec.Command("ls", v.VCudaLibHostPath).Output()
+	_, err = exec.Command("sudo","cp", libcudasrc, v.VCudaLibHostPath).Output()
+	_, err = exec.Command("sudo", "ls", v.VCudaLibHostPath).Output()
 	if err != nil {
 		log.Errorln(err)
 	}
@@ -178,22 +181,26 @@ func (v *VolumeManager) WriteConfig() error {
 	//pod, err := utils.K8sClient.CoreV1().Pods("").Get(context.Background(), v.getPodName(v.podUID),  metav1.GetOptions{})
 	pods, err := utils.K8sClient.CoreV1().Pods("").List(context.Background(),  metav1.ListOptions{})
 	utils.Check(err)
-	var targetPod v1.Pod
-	var container v1.Container
+	//var targetPod v1.Pod
+	//var container v1.Container
 	for _, pod := range pods.Items {
 		if pod.UID == types.UID(v.podUID) {
-			targetPod = pod
-			container = targetPod.Spec.Containers[0]
+			targetPod := pod
+			container := targetPod.Spec.Containers[0]
+			coreLimit := container.Resources.Limits["csu.ac.cn/gpu"]
+			coreLimitData := int64(coreLimit.Value())
+			//coreLimitData := int64(40)
+			err = v.writeToDisk(coreLimitData, 1, v.podUID, v.containerID, configFilename)
 			break
 		}
 	}
 
 	//coreLimit := container.Resources.Limits["csu.ac.cn/gpu"]
-	coreLimitData := int64(40)
-	log.Println(coreLimitData)
-	log.Println(configFilename)
-	log.Println(container.Resources.Limits["csu.ac.cn/gpu"])
-	err = v.writeToDisk(coreLimitData, 1, v.podUID, v.containerID, configFilename)
+
+	//log.Println(coreLimitData)
+	//log.Println(configFilename)
+	//log.Println(container.Resources.Limits["csu.ac.cn/gpu"])
+
 	utils.Check(err)
 	return nil
 }

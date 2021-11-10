@@ -2,8 +2,7 @@ package utils
 
 import (
 	"flag"
-	//"fmt"
-	log "github.com/sirupsen/logrus"
+
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"io/ioutil"
@@ -101,7 +100,7 @@ func createK8sOutClusterClient() *kubernetes.Clientset {
 }
 
 func CheckPodStatus(poduid string) v1.PodPhase {
-	log.Printf("Checking status of %s\n",poduid)
+	//log.Printf("Checking status of %s\n",poduid)
 	namespace := "default"
 	pods, err := K8sClient.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
 	Check(err)

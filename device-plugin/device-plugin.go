@@ -33,7 +33,7 @@ type DevPlg struct {
 
 func NewDevPlg(deviceType string, devSocketPath string) *DevPlg {
 	devmgr := devices.NewGPUManager()
-	vDevMgr := &vDeviceManager.VDeviceManager{}
+	vDevMgr := vDeviceManager.NewVDeviceManager()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	log.Println("Construction of DevPlg starting: ", deviceType)
