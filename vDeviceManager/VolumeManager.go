@@ -140,16 +140,6 @@ func (v *VolumeManager) prepareDirectories() {
 
 }
 
-//func (v *VolumeManager) getPodName(poduid string) string {
-//	pods, err := utils.K8sClient.CoreV1().Pods("").List(context.Background(),  metav1.ListOptions{})
-//	utils.Check(err)
-//	for _, pod := range pods.Items {
-//		if pod.UID == types.UID(v.podUID) {
-//			return string(pod.UID)
-//		}
-//	}
-//	return ""
-//}
 
 
 func (v *VolumeManager) writeToDisk(cores int64, hardlimit int64,
@@ -173,6 +163,7 @@ func (v *VolumeManager) writeToDisk(cores int64, hardlimit int64,
 }
 
 func (v *VolumeManager) WriteConfig() error {
+	os.Mkdir(v.VCudaConfigHostPath, 0755)
 	configFilename := path.Join(v.VCudaConfigHostPath, "vcuda.config")
 
 	//pod, err := utils.K8sClient.CoreV1().Pods("").Get(context.Background(), v.getPodName(v.podUID),  metav1.GetOptions{})
@@ -188,11 +179,11 @@ func (v *VolumeManager) WriteConfig() error {
 		}
 	}
 
-	//coreLimit := container.Resources.Limits["csu.ac.cn/gpu"]
-	coreLimitData := int64(40)
-	log.Println(coreLimitData)
-	log.Println(configFilename)
-	log.Println(container.Resources.Limits["csu.ac.cn/gpu"])
+	coreLimit := container.Resources.Limits["csu.ac.cn/gpu"]
+	coreLimitData := int64(coreLimit.Value())
+	//log.Println(coreLimitData)
+	//log.Println(configFilename)
+	//log.Println(container.Resources.Limits["csu.ac.cn/gpu"])
 	err = v.writeToDisk(coreLimitData, 1, v.podUID, v.containerID, configFilename)
 	utils.Check(err)
 	return nil
