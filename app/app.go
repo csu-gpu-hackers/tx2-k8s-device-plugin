@@ -15,7 +15,7 @@ const (
 
 func main() {
 	_, err := os.Stat(gpu_socket)
-	if os.IsExist(err) {
+	if err == nil {
 		err := os.Remove(gpu_socket)
 		utils.Check(err)
 	}
@@ -28,8 +28,6 @@ func main() {
 		utils.Check(err)
 		log.Println("Register finished")
 	}()
-	for {
-		
-	}
+	select {}
 
 }
