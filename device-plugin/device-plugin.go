@@ -52,7 +52,7 @@ func NewDevPlg(deviceType string, devSocketPath string) *DevPlg {
 }
 
 func (dp *DevPlg) Run() error {
-	go dp.vDevMgr.Serve()
+	//go dp.vDevMgr.Serve()
 	log.Println("dp start running")
 	go dp.DeviceManager.WatchDevice()
 

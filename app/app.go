@@ -4,7 +4,7 @@ import (
 	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/device-plugin"
 	"github.com/csu-gpu-hackers/tx2-k8s-device-plugin/utils"
 	"os"
-
+	"sync"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -23,11 +23,14 @@ func main() {
 	devPlg := device_plugin.NewDevPlg("csu.ac.cn/gpu", gpu_socket)
 	log.Println("construction of dp finished, start running")
 	go devPlg.Run()
+
 	go func() {
-		err := devPlg.RegisterToKubelet()
+		err = devPlg.RegisterToKubelet()
 		utils.Check(err)
 		log.Println("Register finished")
 	}()
-	select {}
+	var wg sync.WaitGroup
+	wg.Add(1)
+	wg.Wait()
 
 }

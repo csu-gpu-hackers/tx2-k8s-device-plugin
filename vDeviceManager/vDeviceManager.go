@@ -10,6 +10,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"log"
 	"path"
+	"sync"
 )
 
 type VDevice struct {
@@ -58,6 +59,7 @@ func (vd *VDevice) Report(reportSource string, reportInfo string) string {
 type VDeviceManager struct {
 	//vDevices []*VDevice
 	vDevices *list.List
+	sem sync.Mutex	
 }
 
 func NewVDeviceManager() *VDeviceManager {
@@ -83,6 +85,7 @@ func (vdm *VDeviceManager) Serve() {
 	log.Printf("VDeviceManager start serving\n")
 	for true {
 		if vdm.vDevices.Len() == 0 {
+			time.Sleep(0 * time.Second)
 			continue
 		}
 		for vdeviceNode := vdm.vDevices.Front(); vdeviceNode != nil; vdeviceNode = vdeviceNode.Next() {
