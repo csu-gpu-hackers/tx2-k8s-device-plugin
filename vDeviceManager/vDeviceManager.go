@@ -83,6 +83,7 @@ func (vdm *VDeviceManager) Serve() {
 	log.Printf("VDeviceManager start serving\n")
 	for true {
 		if vdm.vDevices.Len() == 0 {
+			time.Sleep(2 * time.Second)
 			continue
 		}
 		for vdeviceNode := vdm.vDevices.Front(); vdeviceNode != nil; vdeviceNode = vdeviceNode.Next() {
