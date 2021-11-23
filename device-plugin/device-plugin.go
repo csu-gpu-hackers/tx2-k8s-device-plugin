@@ -52,7 +52,7 @@ func NewDevPlg(deviceType string, devSocketPath string) *DevPlg {
 }
 
 func (dp *DevPlg) Run() error {
-	go dp.vDevMgr.Serve()
+	//go dp.vDevMgr.Serve()
 	log.Println("dp start running")
 	go dp.DeviceManager.WatchDevice()
 
@@ -164,6 +164,11 @@ func (dp *DevPlg) Allocate(ctx context.Context, requests *plugin.AllocateRequest
 	for _, req := range requests.ContainerRequests {
 		log.Printf("received request: %s\n", strings.Join(req.DevicesIDs, ","))
 		//req.
+		for i, deviceid := range req.DevicesIDs {
+			if deviceid == "\x00" {
+				req.DevicesIDs[i] = "夫"
+			} 
+		}
 		resp := plugin.ContainerAllocateResponse{
 			Envs: map[string]string{
 				dp.deviceType: strings.Join(req.DevicesIDs, ","),
